@@ -6,5 +6,4 @@
 module.exports = {
   journalController: require("../controllers/journalcontroller"),
   userController: require("../controllers/usercontroller"),
-  piecontroller: require('../controllers/piecontroller'),
 };

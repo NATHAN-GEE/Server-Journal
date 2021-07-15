@@ -1,2 +1,4 @@
 const UserModel = require("./user");
-module.exports = { UserModel };
+const JournalModel = require("./journal");
+const PieModel = require("./pie");
+module.exports = { UserModel, JournalModel, PieModel };

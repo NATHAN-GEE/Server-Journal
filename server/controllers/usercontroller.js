@@ -1,10 +1,11 @@
 // Handle the routing of the requests it will process the information and then send it back to the client.
 
-const { UniqueConstraintError } = require("sequelize/lib/errors");
 const router = require("express").Router();
 const { UserModel } = require("../models");
+const { UniqueConstraintError } = require("sequelize/lib/errors");
 const jwt = require("jsonwebtoken");
-// const User = require("../models/user");
+const bcrypt = require("bcryptjs");
+const User = require("../models/user");
 
 //whenever you get a post request at the endpoint of register do this code. that is a controller.
 //setting up what happens when that request is made by the client specific to this endpoint.
@@ -17,9 +18,9 @@ router.post("/register", async (req, res) => {
       firstName,
       lastName,
       email,
-      password,
+      password: bcrypt.hashSync(password, 13),
     });
-    let token = jwt.sign({ id: User.id }, "secret-key", {
+    let token = jwt.sign({ id: User.id }, process.env.JWT_SECRET, {
       expiresIn: 60 * 60 * 24,
     });
     res.status(201).json({
@@ -49,13 +50,24 @@ router.post("/login", async (req, res) => {
       },
     });
     if (userLogin) {
-      res.status(200).json({
-        user: userLogin,
-        message: `Hello, you are logged in as ${email}.`,
-      });
+      let passwordCompare = await bcrypt.compare(password, userLogin.password);
+      if (passwordCompare) {
+        let token = jwt.sign({ id: User.id }, process.env.JWT_SECRET, {
+          expiresIn: 60 * 60 * 24,
+        });
+        res.status(200).json({
+          user: userLogin,
+          message: `you are logged in.`,
+          loginToken: token,
+        });
+      } else {
+        res.status(401).json({
+          message: "Incorrect email or password.",
+        });
+      }
     } else {
       res.status(401).json({
-        message: "Login Failed",
+        message: "Incorrect email or password.",
       });
     }
   } catch (err) {
