@@ -8,7 +8,7 @@ const app = Express();
 //ADDING OUR DATABSE TO THE APP THROUGH THE SEQUELIZER
 const dbConnection = require("./db");
 const controllers = require("./controllers");
-
+app.use(require("./middleware/headers"));
 app.use(Express.json()); //Must be above all routes
 app.use(require("./middleware/validate-jwt"));
 app.use("/journal", controllers.journalController); //This is the gate that tells app.js where it lives.
